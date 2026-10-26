@@ -3,22 +3,14 @@ class ComponenteUI:
         self.posicion = posicion
         self.dimension = dimension
 
-    def render
+    def render(self):
+        print(self.posicion)
+        print(self.dimension)
 
-class NotificacionEmail(Notificacion):
-    def __init__(self, destinatario, mensaje, asunto, archivo):
-        super().__init__( destinatario, mensaje)
-        self.asunto = asunto
-        self.archivo = []
-
-    def adjuntar_archivo(self, archivo):
-        self.archivo.append(archivo)
-
-class NotificacionSMS(Notificacion):
-    def __init__(self, destinatario, mensaje, codigo_pais):
-        super().__init__( destinatario, mensaje)
-        self.codigo_pais = codigo_pais
-
-    def validar_longitud(self):
-        return len(self.mensaje) <= 160
+class boton(ComponenteUI):
+    def __init__(self, posicion, dimension, color):
+        super().__init__(posicion, dimension)
+        self.color = color
         
+    def hacer_click():
+        print("ha hecho click")
