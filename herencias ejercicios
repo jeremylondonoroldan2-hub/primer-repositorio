@@ -1,0 +1,232 @@
+Ejercicio 1.1: Sistema de Notificaciones
+Clases: Notificacion, NotificacionEmail, NotificacionSMS
+
+Una aplicación necesita enviar alertas a sus usuarios. Existe una estructura base llamada Notificacion que contiene el destinatario, el mensaje y un método para registrar la fecha de envío. A partir de ella, el sistema requiere dos variantes específicas: NotificacionEmail (que añade el asunto del correo y un método para adjuntar archivos) y NotificacionSMS (que añade el código de país telefónico y un método para validar que el mensaje no supere los 160 caracteres). Modela estas clases aprovechando sus características en común.
+
+==================================================
+VERSIÓN SIMPLIFICADA
+==================================================
+
+Ejercicio 1.1: Sistema de Notificaciones
+
+Objetivo: Practicar la HERENCIA. Vas a crear una clase "padre" con lo que
+tienen en común todas las notificaciones, y dos clases "hijas" que heredan
+de ella y añaden sus propias cosas.
+
+1. Clase padre: Notificacion
+   Es la base de cualquier notificación.
+   - Atributo destinatario            -> A quién se envía
+   - Atributo mensaje                 -> El texto de la notificación
+   - Método   registrar_fecha_envio() -> Guarda la fecha/hora en que se envió
+
+2. Clase hija: NotificacionEmail (hereda de Notificacion)
+   Tiene todo lo de Notificacion y ADEMÁS:
+   - Atributo asunto                    -> El asunto del correo
+   - Método   adjuntar_archivo(archivo) -> Añade un archivo al correo
+
+3. Clase hija: NotificacionSMS (hereda de Notificacion)
+   Tiene todo lo de Notificacion y ADEMÁS:
+   - Atributo codigo_pais        -> Prefijo telefónico (ej: +34)
+   - Método   validar_longitud() -> Comprueba que el mensaje NO pase de 160 caracteres
+
+Diagrama:
+
+              Notificacion
+        (destinatario, mensaje)
+        + registrar_fecha_envio()
+               /         \
+              /           \
+  NotificacionEmail     NotificacionSMS
+     (asunto)            (codigo_pais)
+   + adjuntar_archivo()  + validar_longitud()
+
+Pistas:
+- Las clases hijas NO deben repetir destinatario ni mensaje: los heredan
+  del padre (usa super() en el constructor).
+- adjuntar_archivo puede guardar los archivos en una lista.
+- validar_longitud devuelve True si len(mensaje) <= 160, y False si no.
+
+Ejercicio 2.1: Exportador de Reportes y Documentos
+Clases: DocumentoDatos, ExportadorPDF
+
+Un sistema administrativo maneja objetos de tipo DocumentoDatos que contienen un título y un diccionario con ventas mensuales. Por otro lado, existe una herramienta utilitaria llamada ExportadorPDF que cuenta con la configuración de tamaño de página (A4, Carta) y un método generar_pdf(). Dicho método debe recibir un DocumentoDatos, leer su información e imprimir en pantalla el resultado formateado, sin que el exportador almacene el documento una vez finalizada la tarea.
+
+==================================================
+VERSIÓN SIMPLIFICADA
+==================================================
+
+Ejercicio 2.1: Exportador de Reportes y Documentos
+
+OJO: Este ejercicio NO es de herencia. Las dos clases son independientes
+(ninguna hereda de la otra). Lo que se practica es la DEPENDENCIA: una
+clase USA a otra durante un momento, pero no se la queda guardada.
+
+1. Clase: DocumentoDatos
+   Guarda la información de un reporte.
+   - Atributo titulo -> Nombre del documento (ej: "Ventas 2026")
+   - Atributo ventas -> Diccionario con las ventas de cada mes
+                        ej: {"Enero": 1500, "Febrero": 2300, "Marzo": 1800}
+
+2. Clase: ExportadorPDF
+   Es una herramienta que "imprime" documentos.
+   - Atributo tamano_pagina        -> "A4" o "Carta"
+   - Método   generar_pdf(documento) -> Recibe un DocumentoDatos y muestra
+                                        en pantalla su título, el tamaño de
+                                        página y cada mes con sus ventas,
+                                        bien ordenado.
+
+La regla importante:
+   El exportador recibe el documento como PARÁMETRO del método generar_pdf()
+   y lo usa solo dentro de ese método. NO lo guarda como atributo
+   (nada de self.documento = documento). Cuando termina, se "olvida" de él.
+
+Diagrama:
+
+   ExportadorPDF  - - - - usa - - - ->  DocumentoDatos
+   (tamano_pagina)                      (titulo, ventas)
+   + generar_pdf(documento)
+
+   (La flecha discontinua significa "usa temporalmente", no "hereda" ni "tiene")
+
+Ejemplo de salida esperada de generar_pdf():
+
+   ===== PDF (A4) =====
+   Ventas 2026
+   Enero: 1500
+   Febrero: 2300
+   Marzo: 1800
+   ====================
+
+Pistas:
+- Para recorrer el diccionario: for mes, cantidad in documento.ventas.items():
+- Con un mismo exportador puedes generar varios documentos distintos,
+  uno detrás de otro, porque no se queda ninguno guardado.
+
+Ejercicio 3.1: Nodos en un Balanceador de Carga
+Clases: ServidorWeb, BalanceadorCarga
+
+En una arquitectura en la nube existen múltiples instancias de ServidorWeb, cada una con su propia dirección IP, memoria RAM disponible y estado de salud. Por separado, existe un BalanceadorCarga que mantiene una lista de servidores activos para repartir el tráfico entre ellos mediante los métodos registrar_servidor(), remover_servidor() y mostrar_activos(). Si el BalanceadorCarga se reinicia o se elimina, los objetos ServidorWeb deben continuar existiendo intactos en la infraestructura.
+
+==================================================
+VERSIÓN SIMPLIFICADA
+==================================================
+
+Ejercicio 3.1: Nodos en un Balanceador de Carga
+
+OJO: Este ejercicio NO es de herencia. Las dos clases son independientes
+(ninguna hereda de la otra). Lo que se practica es la AGREGACIÓN: una
+clase TIENE guardados objetos de otra, pero esos objetos existen por su
+cuenta y no dependen de ella para seguir vivos.
+
+1. Clase: ServidorWeb
+   Representa una máquina que atiende peticiones.
+   - Atributo ip        -> Dirección del servidor (ej: "192.168.1.10")
+   - Atributo ram       -> Memoria disponible en GB (ej: 16)
+   - Atributo saludable -> True si funciona bien, False si está caído
+
+2. Clase: BalanceadorCarga
+   Reparte el tráfico entre varios servidores.
+   - Atributo servidores                    -> Lista de servidores registrados
+                                               (empieza vacía: [])
+   - Método   registrar_servidor(servidor)  -> Añade un ServidorWeb a la lista
+   - Método   remover_servidor(servidor)    -> Lo quita de la lista
+   - Método   mostrar_activos()             -> Muestra en pantalla los
+                                               servidores que están saludables
+
+La regla importante:
+   Los ServidorWeb se crean FUERA del balanceador y luego se le pasan con
+   registrar_servidor(). El balanceador SÍ los guarda (en su lista), pero
+   no es su "dueño": si borras o reinicias el balanceador, los servidores
+   siguen existiendo igual.
+
+Diagrama:
+
+   BalanceadorCarga  <>-------- tiene -------->  ServidorWeb
+   (servidores)                                  (ip, ram, saludable)
+   + registrar_servidor(servidor)
+   + remover_servidor(servidor)
+   + mostrar_activos()
+
+   (El rombo vacío <> significa "tiene, pero no es dueño": agregación)
+
+Ejemplo de salida esperada de mostrar_activos():
+
+   ===== Servidores activos =====
+   192.168.1.10 - 16 GB RAM
+   192.168.1.12 - 32 GB RAM
+   ==============================
+
+Pistas:
+- Crea los servidores primero, fuera de cualquier clase:
+     s1 = ServidorWeb("192.168.1.10", 16, True)
+- Para añadir y quitar de la lista: .append(servidor) y .remove(servidor)
+- En mostrar_activos(), recorre la lista con un for y muestra solo los que
+  tengan saludable == True.
+- Prueba: haz "del balanceador" y comprueba que s1 sigue funcionando
+  (print(s1.ip)). Eso demuestra que es agregación.
+
+  Ejercicio 4.1: Conexión de Base de Datos y Pool Interno
+Clases: GestorBaseDatos, PoolConexiones
+
+Cuando se inicializa un GestorBaseDatos pasándole únicamente la URL del servidor, este debe construir automáticamente en su interior su propio PoolConexiones (encargado de administrar un límite fijo de conexiones simultáneas y cerrar los sockets). Ningún otro componente externo crea ni tiene acceso directo independiente al PoolConexiones; si el GestorBaseDatos es destruido en memoria, su PoolConexiones deja de existir con él.
+
+==================================================
+VERSIÓN SIMPLIFICADA
+==================================================
+
+Ejercicio 4.1: Conexión de Base de Datos y Pool Interno
+
+OJO: Este ejercicio NO es de herencia. Lo que se practica es la
+COMPOSICIÓN: una clase CREA y TIENE dentro un objeto de otra, y ese objeto
+le pertenece por completo. Si muere el "dueño", muere también lo que tiene
+dentro.
+
+1. Clase: PoolConexiones
+   Controla cuántas conexiones a la base de datos hay abiertas a la vez.
+   - Atributo limite              -> Máximo de conexiones permitidas (ej: 5)
+   - Atributo conexiones_abiertas -> Cuántas hay abiertas ahora (empieza en 0)
+   - Método   abrir_conexion()    -> Suma 1 a conexiones_abiertas, pero solo
+                                     si no se ha llegado al límite
+   - Método   cerrar_conexiones() -> Cierra todas (vuelve a 0)
+
+2. Clase: GestorBaseDatos
+   Es lo que usa el programa para hablar con la base de datos.
+   - Atributo url  -> Dirección del servidor (ej: "mysql://localhost:3306")
+   - Atributo pool -> Su propio PoolConexiones, que se CREA DENTRO
+                      del __init__ (no se lo pasan desde fuera)
+
+La regla importante:
+   Al crear un GestorBaseDatos solo le pasas la URL. Él mismo crea su
+   PoolConexiones dentro del constructor:
+       self.pool = PoolConexiones(5)
+   Desde fuera nadie crea un PoolConexiones ni lo guarda en otra variable.
+   Si borras el gestor, su pool desaparece con él.
+
+Diagrama:
+
+   GestorBaseDatos  <#>-------- tiene -------->  PoolConexiones
+   (url, pool)                                   (limite, conexiones_abiertas)
+                                                 + abrir_conexion()
+                                                 + cerrar_conexiones()
+
+   (El rombo relleno <#> significa "tiene y es su dueño": composición)
+
+Diferencia con el ejercicio 3.1 (agregación):
+   - Agregación:  el objeto se crea FUERA y se pasa  -> sobrevive si borras al otro
+   - Composición: el objeto se crea DENTRO           -> muere si borras al otro
+
+Ejemplo de uso:
+
+   gestor = GestorBaseDatos("mysql://localhost:3306")
+   gestor.pool.abrir_conexion()
+   gestor.pool.abrir_conexion()
+   print(gestor.pool.conexiones_abiertas)   # 2
+
+Pistas:
+- En abrir_conexion(), usa un if para comprobar que
+  conexiones_abiertas < limite antes de sumar. Si no, muestra un aviso.
+- Para ver que el pool muere con el gestor, añade a PoolConexiones este
+  método especial, que Python ejecuta cuando el objeto se destruye:
+       def __del__(self):
+           print("Pool destruido")
+  Luego haz "del gestor" y verás aparecer el mensaje.
